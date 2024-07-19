@@ -1,0 +1,7 @@
+Program Name: DMX Controller
+
+Made By: TheIronCollector
+
+Version: 1.0
+
+Description: A free self made DMX controller that can do almost just as much as a manual DMX board.
