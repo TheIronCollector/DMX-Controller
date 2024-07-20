@@ -313,7 +313,7 @@ def run() -> None:
     screen: pygame.Surface = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
     pygame.display.set_caption("DMX Controller")
 
-    icon: pygame.Surface = pygame.image.load('PlaceHolder.png')
+    icon: pygame.Surface = pygame.image.load('DMX-Controller/PlaceHolder.png')
     pygame.display.set_icon(icon)
 
     pygamewindow(screen)
