@@ -2,7 +2,7 @@ Hello, welcome to the README file!
 
 This file is personally made to control DMX lighting. Here's some information on the version and stuff:
 
-Name: DMX Controller \n
-Version: 1.0
-Made By: TheIronCollector
-Date Released: 7-22-24 (US)
+Name: DMX Controller    
+Version: 1.0    
+Made By: TheIronCollector    
+Date Released: 7-22-24 (US)    
