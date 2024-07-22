@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['main.py'],
+    ['DMX-Controller\\main.py'],
     pathex=[],
     binaries=[],
     datas=[],
