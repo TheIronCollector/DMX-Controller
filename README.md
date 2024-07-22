@@ -7,6 +7,6 @@ Version: 1.0
 Made By: TheIronCollector    
 Date Released: 7-22-24 (US)    
 
-Updates will automatically be installed upon running if available and user is connected to the internet.
+Updates will automatically be installed upon running if available and user is connected to the internet.    
 To access the exe, you'll find it in the dist folder. Make sure to make a shortcut or something and add it to your desktop.    
 (DONT ADD ANYTHING TO THE DIRECTORY EVEN AFTER DOWNLOADING. IT WILL BE DELETED UPON UPDATING)
