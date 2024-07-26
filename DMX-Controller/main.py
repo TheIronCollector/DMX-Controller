@@ -3,6 +3,7 @@ import sys
 import subprocess
 import threading
 import platform
+import requests
 import shutil
 import stat
 
@@ -45,22 +46,72 @@ def force_remove_readonly(func, path, exc_info):
     func(path)
 
 def is_update_available():
+    current_version = "v1.0.0"  # Replace this with your actual current version
+    repo_owner = "TheIronCollector"
+    repo_name = "DMX-Controller"
+    
+    print(f"Current version: {current_version}")
+    print("Checking for updates...")
+
+    # First, try to check for updates using the GitHub API
     try:
-        repo_url = "https://github.com/TheIronCollector/DMX-Controller.git"
+        api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/releases/latest"
+        response = requests.get(api_url)
+        response.raise_for_status()
+        latest_version = response.json()['tag_name']
+        
+        print(f"Latest version on GitHub: {latest_version}")
+        return latest_version != current_version
+
+    except requests.RequestException as e:
+        print(f"Failed to check for updates via GitHub API: {e}")
+    
+    # If API check fails, fall back to Git method (mainly for development environments)
+    try:
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        parent_dir = os.path.dirname(current_dir)
+        git_dir = os.path.join(current_dir, '.git')
+        
+        if not os.path.isdir(git_dir):
+            print(f"Not a git repository. Git directory not found at {git_dir}")
+            return False
+        
+        print("Checking for updates using Git...")
         
         # Fetch the latest changes from the remote repository
-        subprocess.run(["git", "fetch", repo_url], cwd=parent_dir, check=True)
+        fetch_result = subprocess.run(
+            ["git", "fetch", "origin", "main"], 
+            cwd=current_dir, 
+            capture_output=True, 
+            text=True
+        )
+        if fetch_result.returncode != 0:
+            print(f"Git fetch failed: {fetch_result.stderr}")
+            return False
         
-        # Check if the local repository is behind the remote repository
-        local_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=parent_dir).strip()
-        remote_commit = subprocess.check_output(["git", "rev-parse", "origin/main"], cwd=parent_dir).strip()
+        # Get the latest commit hash from the remote main branch
+        remote_commit = subprocess.check_output(
+            ["git", "rev-parse", "origin/main"], 
+            cwd=current_dir
+        ).strip().decode()
+        
+        # Get the current commit hash
+        local_commit = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], 
+            cwd=current_dir
+        ).strip().decode()
+        
+        print(f"Local commit: {local_commit}")
+        print(f"Remote commit: {remote_commit}")
         
         return local_commit != remote_commit
+
     except subprocess.CalledProcessError as e:
-        print(f"An error occurred while checking for updates: {e}")
-        return False
+        print(f"Git operation failed: {e}")
+    except FileNotFoundError:
+        print("Git command not found. Make sure Git is installed and in your PATH.")
+    
+    # If both methods fail, assume no update is available
+    return False
 
 def update_from_github():
     if not shutil.which('git') or not os.path.isdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), '.git')):
