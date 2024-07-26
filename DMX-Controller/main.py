@@ -63,10 +63,10 @@ def is_update_available():
         return False
 
 def update_from_github():
-    if not shutil.which('git'):
-        print("Git is not available. Please download the latest version manually.")
+    if not shutil.which('git') or not os.path.isdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), '.git')):
+        print("Git repository not available. Please download the latest version manually.")
         print("Visit: https://github.com/TheIronCollector/DMX-Controller/releases")
-        return
+        return False
     
     repo_url = "https://github.com/TheIronCollector/DMX-Controller.git"
     current_dir = os.path.dirname(os.path.abspath(__file__))
