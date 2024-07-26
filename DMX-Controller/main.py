@@ -65,17 +65,21 @@ def update_from_github():
         print("Cloning the latest version to a temporary update directory...")
         subprocess.run(["git", "clone", repo_url, temp_update_dir], check=True)
         
-        # Copy the update script to the temp directory
-        shutil.copy2(__file__, os.path.join(temp_update_dir, script_name))
-        
-        # Optionally, perform any additional steps needed to update your project files
+        # Copy the entire contents of temp_update_dir to parent_dir
+        print("Copying updated files to the main directory...")
+        for item in os.listdir(temp_update_dir):
+            s = os.path.join(temp_update_dir, item)
+            d = os.path.join(parent_dir, item)
+            if os.path.isdir(s):
+                shutil.copytree(s, d, dirs_exist_ok=True)
+            else:
+                shutil.copy2(s, d)
         
         print("Update completed successfully.")
         
-        # Restart the script
+        # Restart the script from the original location
         print("Restarting the script with the updated version...")
-        new_script_path = os.path.join(temp_update_dir, script_name)
-        os.execv(sys.executable, ['python'] + [new_script_path] + sys.argv[1:])
+        os.execv(sys.executable, ['python'] + [os.path.join(parent_dir, script_name)] + sys.argv[1:])
     except subprocess.CalledProcessError as e:
         print(f"An error occurred during the update process: {e}")
         print("Continuing with the existing version of the program.")
@@ -111,6 +115,7 @@ if __name__ == "__main__":
     thread.start()
     
     try:
+        print("Running program")
         Program.run()
     except Exception as e:
         print(f"An error occurred in the main program: {e}")
