@@ -1,48 +1,37 @@
-('C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX '
- 'Controller\\build\\DMX Controller\\PYZ-00.pyz',
+('C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX-Controller\\build\\DMX '
+ 'Controller\\PYZ-00.pyz',
  [('Features',
-   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX '
-   'Controller\\DMX-Controller\\Features\\__init__.py',
+   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX-Controller\\DMX-Controller\\Features\\__init__.py',
    'PYMODULE'),
   ('Features.DMX',
-   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX '
-   'Controller\\DMX-Controller\\Features\\DMX\\__init__.py',
+   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX-Controller\\DMX-Controller\\Features\\DMX\\__init__.py',
    'PYMODULE'),
   ('Features.DMX.fixture',
-   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX '
-   'Controller\\DMX-Controller\\Features\\DMX\\fixture.py',
+   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX-Controller\\DMX-Controller\\Features\\DMX\\fixture.py',
    'PYMODULE'),
   ('Features.DMX.toDMX',
-   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX '
-   'Controller\\DMX-Controller\\Features\\DMX\\toDMX.py',
+   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX-Controller\\DMX-Controller\\Features\\DMX\\toDMX.py',
    'PYMODULE'),
   ('Features.GUI',
-   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX '
-   'Controller\\DMX-Controller\\Features\\GUI\\__init__.py',
+   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX-Controller\\DMX-Controller\\Features\\GUI\\__init__.py',
    'PYMODULE'),
   ('Features.GUI._G',
-   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX '
-   'Controller\\DMX-Controller\\Features\\GUI\\_G.py',
+   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX-Controller\\DMX-Controller\\Features\\GUI\\_G.py',
    'PYMODULE'),
   ('Features.GUI.button',
-   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX '
-   'Controller\\DMX-Controller\\Features\\GUI\\button.py',
+   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX-Controller\\DMX-Controller\\Features\\GUI\\button.py',
    'PYMODULE'),
   ('Features.GUI.scroll',
-   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX '
-   'Controller\\DMX-Controller\\Features\\GUI\\scroll.py',
+   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX-Controller\\DMX-Controller\\Features\\GUI\\scroll.py',
    'PYMODULE'),
   ('Features.GUI.slider',
-   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX '
-   'Controller\\DMX-Controller\\Features\\GUI\\slider.py',
+   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX-Controller\\DMX-Controller\\Features\\GUI\\slider.py',
    'PYMODULE'),
   ('Features.GUI.text',
-   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX '
-   'Controller\\DMX-Controller\\Features\\GUI\\text.py',
+   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX-Controller\\DMX-Controller\\Features\\GUI\\text.py',
    'PYMODULE'),
   ('Features.GUI.window',
-   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX '
-   'Controller\\DMX-Controller\\Features\\GUI\\window.py',
+   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX-Controller\\DMX-Controller\\Features\\GUI\\window.py',
    'PYMODULE'),
   ('OpenGL',
    'C:\\Users\\Jimi\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python312\\site-packages\\OpenGL\\__init__.py',
@@ -642,8 +631,7 @@
    'C:\\Users\\Jimi\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python312\\site-packages\\OpenGL\\wrapper.py',
    'PYMODULE'),
   ('Program',
-   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX '
-   'Controller\\DMX-Controller\\Program.py',
+   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX-Controller\\DMX-Controller\\Program.py',
    'PYMODULE'),
   ('__future__',
    'C:\\Program '
@@ -1934,12 +1922,10 @@
    'C:\\Users\\Jimi\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python312\\site-packages\\pygame\\version.py',
    'PYMODULE'),
   ('pygame_textinput',
-   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX '
-   'Controller\\DMX-Controller\\pygame_textinput\\__init__.py',
+   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX-Controller\\DMX-Controller\\pygame_textinput\\__init__.py',
    'PYMODULE'),
   ('pygame_textinput.pygame_textinput',
-   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX '
-   'Controller\\DMX-Controller\\pygame_textinput\\pygame_textinput.py',
+   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX-Controller\\DMX-Controller\\pygame_textinput\\pygame_textinput.py',
    'PYMODULE'),
   ('queue',
    'C:\\Program '
@@ -1958,8 +1944,7 @@
    'Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.1264.0_x64__qbz5n2kfra8p0\\Lib\\runpy.py',
    'PYMODULE'),
   ('save_load',
-   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX '
-   'Controller\\DMX-Controller\\save_load.py',
+   'C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX-Controller\\DMX-Controller\\save_load.py',
    'PYMODULE'),
   ('secrets',
    'C:\\Program '
