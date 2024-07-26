@@ -20,6 +20,25 @@ def check_internet():
         print("No internet connection detected.")
         return False
 
+def ensure_git_installed():
+    try:
+        # Check if Git is already installed
+        subprocess.run(["git", "--version"], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        print("Git is already installed.")
+    except FileNotFoundError:
+        print("Git is not installed. Attempting to install...")
+        if sys.platform.startswith('win'):
+            try:
+                # Attempt to install Git using winget
+                subprocess.run(["winget", "install", "--id", "Git.Git", "-e", "--source", "winget"], check=True)
+                print("Git has been successfully installed.")
+            except subprocess.CalledProcessError as e:
+                print(f"Failed to install Git: {e}")
+                print("Please install Git manually from https://git-scm.com/downloads")
+        else:
+            print("Automatic Git installation is only supported on Windows.")
+            print("Please install Git manually from https://git-scm.com/downloads")
+
 def force_remove_readonly(func, path, exc_info):
     # Change the file from read-only and try removing it again
     os.chmod(path, stat.S_IWRITE)
@@ -44,6 +63,11 @@ def is_update_available():
         return False
 
 def update_from_github():
+    if not shutil.which('git'):
+        print("Git is not available. Please download the latest version manually.")
+        print("Visit: https://github.com/TheIronCollector/DMX-Controller/releases")
+        return
+    
     repo_url = "https://github.com/TheIronCollector/DMX-Controller.git"
     current_dir = os.path.dirname(os.path.abspath(__file__))
     parent_dir = os.path.dirname(current_dir)
@@ -103,6 +127,7 @@ def DMX_Thread():
 
 if __name__ == "__main__":
     if check_internet():
+        ensure_git_installed()
         if is_update_available():
             update_from_github()
         else:
