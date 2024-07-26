@@ -1,6 +1,6 @@
 ('C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX-Controller\\dist\\DMX '
  'Controller.exe',
- False,
+ True,
  False,
  False,
  ['C:\\Users\\Jimi\\OneDrive\\Documents\\Coding\\Python\\Fun\\DMX-Controller\\icon.ico'],
@@ -373,9 +373,9 @@
  [],
  False,
  False,
- 1721990268,
- [('runw.exe',
-   'C:\\Users\\Jimi\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python312\\site-packages\\PyInstaller\\bootloader\\Windows-64bit-intel\\runw.exe',
+ 1721990497,
+ [('run.exe',
+   'C:\\Users\\Jimi\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python312\\site-packages\\PyInstaller\\bootloader\\Windows-64bit-intel\\run.exe',
    'EXECUTABLE')],
  'C:\\Program '
  'Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.1264.0_x64__qbz5n2kfra8p0\\python312.dll')
