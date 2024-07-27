@@ -58,9 +58,11 @@ def replace_with_github_clone(target_dir, github_url):
         subprocess.run(["git", "clone", github_url, temp_dir], check=True)
 
         # Remove the original directory
+        print("Removing original directory")
         remove_directory(target_dir)
 
         # Rename the cloned directory to the target directory name
+        print("Renaming temp directory to original's name")
         os.rename(temp_dir, target_dir)
 
         print(f"Successfully replaced {target_dir} with the cloned repository.")
