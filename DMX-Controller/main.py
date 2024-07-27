@@ -21,12 +21,18 @@ def check_internet():
         print("No internet connection detected.")
         return False
 
+def handle_remove_readonly(func, path, exc):
+    excvalue = exc[1]
+    if func in (os.rmdir, os.remove, os.unlink) and excvalue.errno == errno.EACCES:
+        os.chmod(path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)  # 0777
+        func(path)
+    else:
+        raise
+
 def replace_with_github_clone(target_dir, github_url):
-    # Ensure the target directory exists
     if not os.path.exists(target_dir):
         raise ValueError(f"The target directory {target_dir} does not exist.")
 
-    # Create a temporary directory for cloning
     temp_dir = target_dir + "_temp"
     
     try:
@@ -34,7 +40,17 @@ def replace_with_github_clone(target_dir, github_url):
         subprocess.run(["git", "clone", github_url, temp_dir], check=True)
 
         # Remove the original directory
-        shutil.rmtree(target_dir)
+        max_attempts = 5
+        for attempt in range(max_attempts):
+            try:
+                shutil.rmtree(target_dir, onerror=handle_remove_readonly)
+                break
+            except PermissionError:
+                if attempt < max_attempts - 1:
+                    print(f"Permission error, retrying in 2 seconds... (Attempt {attempt + 1}/{max_attempts})")
+                    time.sleep(2)
+                else:
+                    raise
 
         # Rename the cloned directory to the target directory name
         os.rename(temp_dir, target_dir)
@@ -42,14 +58,12 @@ def replace_with_github_clone(target_dir, github_url):
         print(f"Successfully replaced {target_dir} with the cloned repository.")
     except subprocess.CalledProcessError as e:
         print(f"Error cloning repository: {e}")
-        # Clean up the temporary directory if it exists
         if os.path.exists(temp_dir):
-            shutil.rmtree(temp_dir)
+            shutil.rmtree(temp_dir, onerror=handle_remove_readonly)
     except Exception as e:
         print(f"An error occurred: {e}")
-        # Clean up the temporary directory if it exists
         if os.path.exists(temp_dir):
-            shutil.rmtree(temp_dir)
+            shutil.rmtree(temp_dir, onerror=handle_remove_readonly)
 
 def DMX_Thread():
     toDMX.run()
