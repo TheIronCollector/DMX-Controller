@@ -3,7 +3,7 @@ import sys
 import subprocess
 import threading
 import platform
-import requests
+import errno
 import shutil
 import stat
 
@@ -48,7 +48,7 @@ def replace_with_github_clone(target_dir, github_url):
             except PermissionError:
                 if attempt < max_attempts - 1:
                     print(f"Permission error, retrying in 2 seconds... (Attempt {attempt + 1}/{max_attempts})")
-                    time.sleep(2)
+                    os.sleep(2)
                 else:
                     raise
 
