@@ -23,48 +23,33 @@ def check_internet():
         print("No internet connection detected.")
         return False
 
-def handle_remove_readonly(func, path, exc):
-    excvalue = exc[1]
-    if func in (os.rmdir, os.remove, os.unlink) and excvalue.errno == errno.EACCES:
-        os.chmod(path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)  # 0777
-        func(path)
-    else:
-        raise
-
-def copy_contents(src, dst, exclude=None):
-    if exclude is None:
-        exclude = ['.git']
+def move_contents(src, dst):
     for item in os.listdir(src):
-        if item in exclude:
+        if item == '.git':
             continue
         s = os.path.join(src, item)
         d = os.path.join(dst, item)
-        if os.path.isdir(s):
-            if os.path.exists(d):
+        if os.path.exists(d):
+            if os.path.isdir(d):
                 shutil.rmtree(d)
-            shutil.copytree(s, d)
-        else:
-            if os.path.exists(d):
+            else:
                 os.remove(d)
-            shutil.copy2(s, d)
+        shutil.move(s, d)
 
 def update_directory_with_github_clone(target_dir, github_url):
     if not os.path.exists(target_dir):
         raise ValueError(f"The target directory {target_dir} does not exist.")
 
-    # Create a temporary directory
-    with tempfile.TemporaryDirectory() as temp_dir:
+    # Create a temporary directory for cloning
+    with tempfile.TemporaryDirectory() as temp_parent_dir:
         try:
-            # Clone the repository to the temporary directory
-            subprocess.run(["git", "clone", github_url, temp_dir], check=True)
+            # Clone the repository to a new directory inside the temp directory
+            repo_name = os.path.splitext(os.path.basename(github_url))[0]
+            clone_dir = os.path.join(temp_parent_dir, repo_name)
+            subprocess.run(["git", "clone", github_url, clone_dir], check=True)
 
-            # Remove .git directory from target if it exists
-            target_git_dir = os.path.join(target_dir, '.git')
-            if os.path.exists(target_git_dir):
-                shutil.rmtree(target_git_dir)
-
-            # Copy contents from temp directory to target directory, excluding .git
-            copy_contents(temp_dir, target_dir)
+            # Move contents from cloned directory to target directory
+            move_contents(clone_dir, target_dir)
 
             print(f"Successfully updated {target_dir} with the contents of the cloned repository.")
         except subprocess.CalledProcessError as e:
