@@ -22,4 +22,4 @@ Currently only works with DSD Tech USB to DMX adapters. For other USB to DMX ada
 
 If you find this project useful, please consider making a donation to the creator:
 
-[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)(https://ko-fi.com/YOUR_KOFI_USERNAME)
+![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)(https://ko-fi.com/TheIronCollector)
