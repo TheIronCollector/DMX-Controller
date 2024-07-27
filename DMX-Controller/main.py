@@ -52,9 +52,11 @@ def update_directory_with_github_clone(target_dir, github_url):
     with tempfile.TemporaryDirectory() as temp_dir:
         try:
             # Clone the repository to the temporary directory
+            print("Cloning")
             subprocess.run(["git", "clone", github_url, temp_dir], check=True)
 
             # Copy contents from temp directory to target directory
+            print("Copying")
             copy_contents(temp_dir, target_dir)
 
             print(f"Successfully updated {target_dir} with the contents of the cloned repository.")
