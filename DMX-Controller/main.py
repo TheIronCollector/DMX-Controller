@@ -2,6 +2,7 @@ import os
 import sys
 import subprocess
 import threading
+import time
 import platform
 import errno
 import shutil
@@ -29,6 +30,19 @@ def handle_remove_readonly(func, path, exc):
     else:
         raise
 
+def remove_directory(dir_path):
+    max_attempts = 5
+    for attempt in range(max_attempts):
+        try:
+            shutil.rmtree(dir_path, onerror=handle_remove_readonly)
+            break
+        except PermissionError:
+            if attempt < max_attempts - 1:
+                print(f"Permission error, retrying in 2 seconds... (Attempt {attempt + 1}/{max_attempts})")
+                time.sleep(2)
+            else:
+                raise
+
 def replace_with_github_clone(target_dir, github_url):
     if not os.path.exists(target_dir):
         raise ValueError(f"The target directory {target_dir} does not exist.")
@@ -36,21 +50,15 @@ def replace_with_github_clone(target_dir, github_url):
     temp_dir = target_dir + "_temp"
     
     try:
+        # Remove the temporary directory if it already exists
+        if os.path.exists(temp_dir):
+            remove_directory(temp_dir)
+
         # Clone the repository to the temporary directory
         subprocess.run(["git", "clone", github_url, temp_dir], check=True)
 
         # Remove the original directory
-        max_attempts = 5
-        for attempt in range(max_attempts):
-            try:
-                shutil.rmtree(target_dir, onerror=handle_remove_readonly)
-                break
-            except PermissionError:
-                if attempt < max_attempts - 1:
-                    print(f"Permission error, retrying in 2 seconds... (Attempt {attempt + 1}/{max_attempts})")
-                    os.sleep(2)
-                else:
-                    raise
+        remove_directory(target_dir)
 
         # Rename the cloned directory to the target directory name
         os.rename(temp_dir, target_dir)
@@ -59,11 +67,11 @@ def replace_with_github_clone(target_dir, github_url):
     except subprocess.CalledProcessError as e:
         print(f"Error cloning repository: {e}")
         if os.path.exists(temp_dir):
-            shutil.rmtree(temp_dir, onerror=handle_remove_readonly)
+            remove_directory(temp_dir)
     except Exception as e:
         print(f"An error occurred: {e}")
         if os.path.exists(temp_dir):
-            shutil.rmtree(temp_dir, onerror=handle_remove_readonly)
+            remove_directory(temp_dir)
 
 def DMX_Thread():
     toDMX.run()
