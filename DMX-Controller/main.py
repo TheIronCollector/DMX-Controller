@@ -37,6 +37,11 @@ def update_directory_with_github_clone(target_dir, github_url):
     if not os.path.exists(target_dir):
         raise ValueError(f"The target directory {target_dir} does not exist.")
 
+    for item in os.listdir(target_dir):
+        if item.endswith('.exe'):
+            target_dir = os.path.dirname(target_dir)
+            break
+
     # Create a temporary directory for cloning
     with tempfile.TemporaryDirectory() as temp_parent_dir:
         try:
