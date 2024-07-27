@@ -173,6 +173,11 @@ import Program
 #             except PermissionError as e:
 #                 print(f"Failed to remove temporary update directory: {e}")
 
+# Function to handle permission errors
+def remove_readonly(func, path, _):
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
+
 def DMX_Thread():
     toDMX.run()
 
@@ -195,8 +200,8 @@ if __name__ == "__main__":
 
     # Check if the target directory exists
     if os.path.exists(target_dir):
-        # Remove the existing directory
-        shutil.rmtree(target_dir)
+        # Remove the existing directory, handling permission errors
+        shutil.rmtree(target_dir, onerror=remove_readonly)
 
     # Define your Bash command to be run in the parent directory of the outer DMX-Controller
     command = f"""
