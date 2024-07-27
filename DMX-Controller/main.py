@@ -1,13 +1,10 @@
 import os
-import sys
-import subprocess
-import threading
-import time
 import platform
-import errno
 import shutil
-import stat
+import subprocess
+import sys
 import tempfile
+import threading
 
 import Features.DMX.toDMX as toDMX
 import Program
@@ -46,9 +43,12 @@ def update_directory_with_github_clone(target_dir, github_url):
             # Clone the repository to a new directory inside the temp directory
             repo_name = os.path.splitext(os.path.basename(github_url))[0]
             clone_dir = os.path.join(temp_parent_dir, repo_name)
+
+            print("Cloning GutHub directory")
             subprocess.run(["git", "clone", github_url, clone_dir], check=True)
 
             # Move contents from cloned directory to target directory
+            print("Moving contents to main directory")
             move_contents(clone_dir, target_dir)
 
             print(f"Successfully updated {target_dir} with the contents of the cloned repository.")
@@ -62,10 +62,8 @@ def DMX_Thread():
 
 if __name__ == "__main__":
     cur_dir = os.getcwd()
-    parent_dir = os.path.dirname(cur_dir)
 
     print(f'Current directory: {cur_dir}')
-    print(f'Parent directory: {parent_dir}')
 
     try:
         if check_internet():
