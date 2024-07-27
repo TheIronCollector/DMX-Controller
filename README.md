@@ -1,6 +1,6 @@
 Hello, welcome to the README file!
 
-This project is personally made to control DMX lighting. Here's some information on the version and stuff:
+This project is personally made to control DMX lighting. Keep in mind that this is currently bare-bones and is lacking optimization and should be constantly updated. Here's some information on the version and stuff:
 
 Name: DMX Controller    
 Version: 1.0.1    
