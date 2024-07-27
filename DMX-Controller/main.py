@@ -7,6 +7,7 @@ import platform
 import errno
 import shutil
 import stat
+import tempfile
 
 import Features.DMX.toDMX as toDMX
 import Program
@@ -30,50 +31,37 @@ def handle_remove_readonly(func, path, exc):
     else:
         raise
 
-def remove_directory(dir_path):
-    max_attempts = 5
-    for attempt in range(max_attempts):
-        try:
-            shutil.rmtree(dir_path, onerror=handle_remove_readonly)
-            break
-        except PermissionError:
-            if attempt < max_attempts - 1:
-                print(f"Permission error, retrying in 2 seconds... (Attempt {attempt + 1}/{max_attempts})")
-                time.sleep(2)
-            else:
-                raise
+def copy_contents(src, dst):
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.isdir(s):
+            if os.path.exists(d):
+                shutil.rmtree(d)
+            shutil.copytree(s, d)
+        else:
+            if os.path.exists(d):
+                os.remove(d)
+            shutil.copy2(s, d)
 
-def replace_with_github_clone(target_dir, github_url):
+def update_directory_with_github_clone(target_dir, github_url):
     if not os.path.exists(target_dir):
         raise ValueError(f"The target directory {target_dir} does not exist.")
 
-    temp_dir = target_dir + "_temp"
-    
-    try:
-        # Remove the temporary directory if it already exists
-        if os.path.exists(temp_dir):
-            remove_directory(temp_dir)
+    # Create a temporary directory
+    with tempfile.TemporaryDirectory() as temp_dir:
+        try:
+            # Clone the repository to the temporary directory
+            subprocess.run(["git", "clone", github_url, temp_dir], check=True)
 
-        # Clone the repository to the temporary directory
-        subprocess.run(["git", "clone", github_url, temp_dir], check=True)
+            # Copy contents from temp directory to target directory
+            copy_contents(temp_dir, target_dir)
 
-        # Remove the original directory
-        print("Removing original directory")
-        remove_directory(target_dir)
-
-        # Rename the cloned directory to the target directory name
-        print("Renaming temp directory to original's name")
-        os.rename(temp_dir, target_dir)
-
-        print(f"Successfully replaced {target_dir} with the cloned repository.")
-    except subprocess.CalledProcessError as e:
-        print(f"Error cloning repository: {e}")
-        if os.path.exists(temp_dir):
-            remove_directory(temp_dir)
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        if os.path.exists(temp_dir):
-            remove_directory(temp_dir)
+            print(f"Successfully updated {target_dir} with the contents of the cloned repository.")
+        except subprocess.CalledProcessError as e:
+            print(f"Error cloning repository: {e}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
 def DMX_Thread():
     toDMX.run()
@@ -87,7 +75,7 @@ if __name__ == "__main__":
 
     try:
         if check_internet():
-            replace_with_github_clone(cur_dir, "https://github.com/TheIronCollector/DMX-Controller.git")
+            update_directory_with_github_clone(cur_dir, "https://github.com/TheIronCollector/DMX-Controller.git")
         else:
             print("Skipping update check due to no internet connection.")
     except Exception as e:
