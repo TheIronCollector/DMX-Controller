@@ -190,13 +190,21 @@ if __name__ == "__main__":
     current_dir = os.path.dirname(os.path.abspath(__file__))
     parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
 
+    # Define the path to the target directory
+    target_dir = os.path.join(parent_dir, 'DMX-Controller')
+
+    # Check if the target directory exists
+    if os.path.exists(target_dir):
+        # Remove the existing directory
+        shutil.rmtree(target_dir)
+
     # Define your Bash command to be run in the parent directory
-    command = """
-    cd {} &&
+    command = f"""
+    cd {parent_dir} &&
     git clone https://github.com/TheIronCollector/DMX-Controller.git &&
     cd DMX-Controller &&
     pip install .
-    """.format(parent_dir)
+    """
 
     # Run the command
     process = subprocess.run(command, shell=True, check=True)
