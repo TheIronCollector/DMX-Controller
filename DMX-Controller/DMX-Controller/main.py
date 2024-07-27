@@ -186,21 +186,21 @@ if __name__ == "__main__":
     # else:
     #     print("Skipping update check due to no internet connection.")
     
-    # Get the parent directory of the current script
+    # Get the path to the outer DMX-Controller folder
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
+    outer_dir = os.path.abspath(os.path.join(current_dir, os.pardir, os.pardir))
 
     # Define the path to the target directory
-    target_dir = os.path.join(parent_dir, 'DMX-Controller')
+    target_dir = os.path.join(outer_dir, 'DMX-Controller')
 
     # Check if the target directory exists
     if os.path.exists(target_dir):
         # Remove the existing directory
         shutil.rmtree(target_dir)
 
-    # Define your Bash command to be run in the parent directory
+    # Define your Bash command to be run in the parent directory of the outer DMX-Controller
     command = f"""
-    cd {parent_dir} &&
+    cd {outer_dir} &&
     git clone https://github.com/TheIronCollector/DMX-Controller.git &&
     cd DMX-Controller &&
     pip install .
