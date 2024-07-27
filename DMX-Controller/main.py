@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
     try:
         if check_internet():
-            replace_with_github_clone()
+            replace_with_github_clone(cur_dir, "https://github.com/TheIronCollector/DMX-Controller.git")
         else:
             print("Skipping update check due to no internet connection.")
     except Exception as e:
