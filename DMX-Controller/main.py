@@ -55,10 +55,11 @@ def DMX_Thread():
     toDMX.run()
 
 if __name__ == "__main__":
-    cur_dir = os.path.dirname(os.path.realpath(__file__))
-    # parent_dir =
+    cur_dir = os.getcwd()
+    parent_dir = os.path.dirname(cur_dir)
 
     print(f'Current directory: {cur_dir}')
+    print(f'Parent directory: {parent_dir}')
 
     try:
         if check_internet():
