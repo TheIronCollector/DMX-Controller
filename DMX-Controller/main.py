@@ -55,10 +55,18 @@ def DMX_Thread():
     toDMX.run()
 
 if __name__ == "__main__":
-    if check_internet():
-        replace_with_github_clone()
-    else:
-        print("Skipping update check due to no internet connection.")
+    cur_dir = os.path.dirname(os.path.realpath(__file__))
+    # parent_dir =
+
+    print(f'Current directory: {cur_dir}')
+
+    try:
+        if check_internet():
+            replace_with_github_clone()
+        else:
+            print("Skipping update check due to no internet connection.")
+    except Exception as e:
+        print(e)
 
     print("Starting DMX thread and main program...")
     thread = threading.Thread(target=DMX_Thread)
