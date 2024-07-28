@@ -1,5 +1,6 @@
 import os
 import platform
+import psutil
 import shutil
 import signal
 import subprocess
@@ -91,8 +92,17 @@ def close_terminal():
     parent_pid = os.getppid()
     
     if system == "windows":
-        # Windows uses taskkill to kill the parent process
-        subprocess.run(f"taskkill /PID {parent_pid} /F")
+        # Use psutil to terminate the parent process
+        try:
+            parent = psutil.Process(parent_pid)
+            parent.terminate()
+            parent.wait(timeout=5)
+        except psutil.NoSuchProcess:
+            print(f"No such process with PID {parent_pid}")
+        except psutil.AccessDenied:
+            print(f"Access denied when trying to terminate process with PID {parent_pid}")
+        except psutil.TimeoutExpired:
+            print(f"Timeout expired when trying to terminate process with PID {parent_pid}")
     elif system == "darwin":
         # macOS can use AppleScript to close the Terminal
         script = f'''
