@@ -136,8 +136,11 @@ if __name__ == "__main__":
     except Exception as e:
         print(e)
 
-    # Close terminal since it is no longer needed
-    close_terminal()
+    try:
+        # Close terminal since it is no longer needed
+        close_terminal()
+    except:
+        pass
 
     print("Starting DMX thread and main program...")
     thread = threading.Thread(target=DMX_Thread)
