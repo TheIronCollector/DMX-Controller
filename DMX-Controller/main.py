@@ -102,7 +102,6 @@ if __name__ == "__main__":
             print("Program was run with an exe")
             break
     else:
-        print("Program was run without an exe")
         target_dir = cur_dir
 
     print(f'Current directory: {cur_dir}')
