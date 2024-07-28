@@ -3,7 +3,7 @@
 Name: DMX Controller    
 Version: 1.0.1    
 Made By: TheIronCollector    
-Date Released: 7-22-24 (US)    
+Date Released: 7-27-24 (USA)    
 
 ### Description
 
