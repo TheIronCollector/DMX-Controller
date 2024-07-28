@@ -1,6 +1,7 @@
 import os
 import platform
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -85,6 +86,28 @@ def update_directory_with_github_clone(target_dir, github_url):
         except Exception as e:
             print(f"An error occurred: {e}")
 
+def close_terminal():
+    system = platform.system().lower()
+    parent_pid = os.getppid()
+    
+    if system == "windows":
+        # Windows uses taskkill to kill the parent process
+        subprocess.run(f"taskkill /PID {parent_pid} /F")
+    elif system == "darwin":
+        # macOS can use AppleScript to close the Terminal
+        script = f'''
+        tell application "System Events"
+            set frontmost of the first process whose unix id is {parent_pid} to true
+            keystroke "w" using {{command down}}
+        end tell
+        '''
+        subprocess.run(["osascript", "-e", script])
+    elif system == "linux":
+        # Linux can use pkill to terminate the parent process
+        os.kill(parent_pid, signal.SIGTERM)
+    else:
+        print(f"Unsupported platform: {system}")
+
 def DMX_Thread():
     toDMX.run()
 
@@ -112,6 +135,9 @@ if __name__ == "__main__":
             print("Skipping update check due to no internet connection.")
     except Exception as e:
         print(e)
+
+    # Close terminal since it is no longer needed
+    close_terminal()
 
     print("Starting DMX thread and main program...")
     thread = threading.Thread(target=DMX_Thread)
