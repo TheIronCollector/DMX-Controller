@@ -87,54 +87,30 @@ def update_directory_with_github_clone(target_dir, github_url):
         except Exception as e:
             print(f"An error occurred: {e}")
 
-def close_terminal():
-    system = platform.system().lower()
-    parent_pid = os.getppid()
-    
-    if system == "windows":
-        # Use psutil to terminate the parent process
-        try:
-            parent = psutil.Process(parent_pid)
-            parent.terminate()
-            parent.wait(timeout=5)
-        except psutil.NoSuchProcess:
-            print(f"No such process with PID {parent_pid}")
-        except psutil.AccessDenied:
-            print(f"Access denied when trying to terminate process with PID {parent_pid}")
-        except psutil.TimeoutExpired:
-            print(f"Timeout expired when trying to terminate process with PID {parent_pid}")
-    elif system == "darwin":
-        # macOS can use AppleScript to close the Terminal
-        script = f'''
-        tell application "System Events"
-            set frontmost of the first process whose unix id is {parent_pid} to true
-            keystroke "w" using {{command down}}
-        end tell
-        '''
-        subprocess.run(["osascript", "-e", script])
-    elif system == "linux":
-        # Linux can use pkill to terminate the parent process
-        os.kill(parent_pid, signal.SIGTERM)
-    else:
-        print(f"Unsupported platform: {system}")
-
 def DMX_Thread():
     toDMX.run()
 
 if __name__ == "__main__":
+    is_exe = False
     cur_dir = os.getcwd()
 
     # Making sure the directory is the right one and not the dist folder (contains an exe)
     for item in os.listdir(cur_dir):
         if item.endswith('.exe'):
             target_dir = os.path.dirname(cur_dir)
+            is_exe = True
+            print("Program was run with an exe")
             break
     else:
+        print("Program was run without an exe")
         target_dir = cur_dir
 
     print(f'Current directory: {cur_dir}')
 
     try:
+        if not is_exe:
+            raise ValueError("Not an exe. Won't update.")
+
         if check_internet():
             if is_update_available(target_dir):
                 print("Update is available. Updating...")
@@ -145,12 +121,6 @@ if __name__ == "__main__":
             print("Skipping update check due to no internet connection.")
     except Exception as e:
         print(e)
-
-    try:
-        # Close terminal since it is no longer needed
-        close_terminal()
-    except:
-        pass
 
     print("Starting DMX thread and main program...")
     thread = threading.Thread(target=DMX_Thread)
