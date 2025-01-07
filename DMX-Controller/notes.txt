@@ -1,0 +1,13 @@
+Things to add:
+
+Timer
+Chases
+Events
+Blackout
+
+
+
+Chases:
+
+New save file
+[ChaseName, [Scene #, CooldownLength, EasingType, Scene #, CooldownLength, EasingType, ..., Scene #]]

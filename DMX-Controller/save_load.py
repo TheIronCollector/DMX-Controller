@@ -1,9 +1,11 @@
-import Features
+import customWidgets.fixture
+import toDMX
 import logging
 import ast
 import os
 import platform
 from pathlib import Path
+import customWidgets
 
 def get_user_data_dir(app_name: str) -> Path:
     if platform.system() == "Windows":
@@ -20,7 +22,7 @@ def get_save_file_path(filename: str) -> Path:
     user_data_dir = get_user_data_dir("DMX Controller")
     return user_data_dir / filename
 
-def save(sceneNum: int, filename: str = "saves.txt") -> None:
+def save(sceneNum: int, window, filename: str = "saves.txt") -> None:
     file_path = get_save_file_path(filename)
     data_index = -1
     
@@ -37,9 +39,9 @@ def save(sceneNum: int, filename: str = "saves.txt") -> None:
     if data_index != -1:
         delete_line(data_index, file_path)
 
-    Features.fixture.save()
-    data = Features.fixture.data.copy()
-    Features.fixture.data = []
+    customWidgets.fixture.save()
+    data = customWidgets.fixture.data.copy()
+    customWidgets.fixture.data.clear()
     
     data.insert(0, sceneNum)
 
@@ -47,23 +49,17 @@ def save(sceneNum: int, filename: str = "saves.txt") -> None:
         file.write(str(data) + "\n")
 
     data.clear()
-    Features.fixture.data.clear()
-    Features.fixture.fixList.clear()
 
-def load(sceneNum: int, filename: str = "saves.txt") -> None:
+def load(sceneNum: int, window, filename: str = "saves.txt") -> None:
     file_path = get_save_file_path(filename)
 
-    # Clear existing fixtures
-    attachments = Features.GUI.window.bgList[0].attachments
-    for attachment in attachments[:]:
-        if type(attachment) == Features.GUI.Window and attachment.bools['isFixture']:
-            attachments.remove(attachment)
-            del attachment
+    for fixture in customWidgets.fixture.fixtureList:
+        window.MainWidget.remove_widget(fixture)
 
-    Features.fixture.fixList.clear()
-    Features.DMX.fixture.data.clear()
-    Features.DMX.fixture.channelsList = [False] * 512
-    Features.DMX.toDMX.dmx_data = [0] * 512
+    customWidgets.fixture.fixtureList.clear()
+    customWidgets.fixture.data.clear()
+    customWidgets.fixture.channelList = [False] * 512
+    toDMX.dmx_data = [0] * 512
 
     if file_path.exists():
         with open(file_path, 'r') as file:
@@ -80,12 +76,15 @@ def load(sceneNum: int, filename: str = "saves.txt") -> None:
                 return
             
             for fixture_data in data[1:]:
-                brand, channel, channel_mode, channel_values = fixture_data
-                new_fixture = Features.DMX.fixture.Fixture(brand, channel, channel_mode)
+                name, channel, channel_mode, channel_values = fixture_data
+                window.add_fixture(name, channel, channel_mode, True)
                 for i in range(channel_mode):
-                    Features.DMX.toDMX.dmx_data[channel - 1 + i] = channel_values[i]
-
-    Features.fixture.data = []
+                    toDMX.dmx_data[channel - 1 + i] = channel_values[i]
+            
+            for fixture in customWidgets.fixture.fixtureList:
+                for i in range(len(fixture.sliders)):
+                    channel = int(fixture.channel_labels[i].text())
+                    fixture.sliders[i].setValue(toDMX.dmx_data[channel - 1])
 
 def delete_line(line_index: int, file_path: Path):
     print(f"Deleting line {line_index + 1}")

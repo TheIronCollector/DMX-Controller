@@ -8,7 +8,7 @@ import sys
 import tempfile
 import threading
 
-import Features.DMX.toDMX as toDMX
+import toDMX
 import Program
 
 def check_internet():
