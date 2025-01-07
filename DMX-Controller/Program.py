@@ -269,7 +269,7 @@ class Window(QMainWindow):
         self.MainWidget.add_widget(button.Button(width - 200, 75, 120, 40, "Page Down", lambda: self.button_clicked("Page Down")))
         self.MainWidget.add_widget(button.Button(width - 135, 175, 120, 40, "Save", lambda: self.button_clicked('Save')))
         self.MainWidget.add_widget(button.Button(width - 265, 175, 120, 40, "Add Fixture", lambda: self.button_clicked('AddFixture')))
-        self.MainWidget.add_widget(button.Button(width - 200, 235, 120, 40, "Chases", lambda: self.button_clicked('Chases')))
+        # self.MainWidget.add_widget(button.Button(width - 200, 235, 120, 40, "Chases", lambda: self.button_clicked('Chases'))) Next update
 
         self.FixScrollWidget = QScrollArea()
         self.FixScrollContent = QWidget()
