@@ -22,7 +22,11 @@ def download_github_repo_as_zip(github_url, target_dir):
         response.raise_for_status()
 
         # Create a temporary file for the ZIP
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as temp_zip:
+        temp_dir = os.path.join(os.getcwd(), 'temp_folder')
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".zip", dir=temp_dir) as temp_zip:
             temp_zip.write(response.content)
             temp_zip_path = temp_zip.name
 
@@ -32,26 +36,12 @@ def download_github_repo_as_zip(github_url, target_dir):
             with zipfile.ZipFile(temp_zip_path, 'r') as zip_ref:
                 zip_ref.extractall(temp_extract_dir)
 
-            # Move the contents of the extracted folder to the target directory
-            extracted_dir = os.path.join(temp_extract_dir, os.listdir(temp_extract_dir)[0])
-            print(f"Moving contents from {extracted_dir} to {target_dir}...")
-            for item in os.listdir(extracted_dir):
-                s = os.path.join(extracted_dir, item)
-                d = os.path.join(target_dir, item)
-                if os.path.exists(d):
-                    if os.path.isdir(d):
-                        shutil.rmtree(d)
-                    else:
-                        os.remove(d)
-                shutil.move(s, d)
+            # Return the extracted directory path for later use
+            return temp_extract_dir
 
-        # Clean up the temporary ZIP file
-        os.remove(temp_zip_path)
-        print("Update completed successfully.")
-        return True
     except Exception as e:
         print(f"An error occurred while downloading or extracting the repository: {e}")
-        return False
+        return None
 
 def restart_with_update(exe_path, updated_exe_path):
     """Handle renaming and restarting the program after the update."""
@@ -115,16 +105,16 @@ if __name__ == "__main__":
             raise ValueError("Not an exe. Won't update.")
 
         print("Checking for updates...")
-        update_applied = download_github_repo_as_zip("https://github.com/TheIronCollector/DMX-Controller", target_dir)
+        temp_extract_dir = download_github_repo_as_zip("https://github.com/TheIronCollector/DMX-Controller", target_dir)
 
         # If the update was applied, handle the executable replacement
-        if update_applied:
+        if temp_extract_dir:
             print("Update applied. Preparing to restart with the updated executable...")
             updated_exe_path = exe_path.replace(".exe", " Updated.exe")
 
             # Check for the updated executable
             if os.path.exists(updated_exe_path):
-                restart_with_update(exe_path, updated_exe_path)
+                restart_with_update(exe_path, temp_extract_dir)
             else:
                 print(f"Updated executable not found: {updated_exe_path}")
         else:
