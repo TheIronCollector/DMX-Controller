@@ -1,84 +1,52 @@
 import os
-import platform
-import psutil
+import requests
 import shutil
-import signal
-import subprocess
-import sys
 import tempfile
 import threading
-
+import zipfile
 import toDMX
 import Program
 
-def check_internet():
+def download_github_repo_as_zip(github_url, target_dir):
     try:
-        command = ["ping", "-c" if platform.system().lower() != "windows" else "-n", "1", "google.com"]
-        print(f"Running command: {' '.join(command)}")
-        subprocess.check_call(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        print("Internet connection is available.")
-        return True
-    except FileNotFoundError as e:
-        print(f"Ping command not found: {e}")
-        return False
-    except subprocess.CalledProcessError:
-        print("No internet connection detected.")
-        return False
+        # Construct the URL for the ZIP file
+        repo_name = github_url.rstrip('/').split('/')[-1]
+        zip_url = f"{github_url}/archive/refs/heads/main.zip"
+        
+        # Download the ZIP file
+        print(f"Downloading repository from {zip_url}...")
+        response = requests.get(zip_url, stream=True)
+        response.raise_for_status()  # Raise an error for bad HTTP responses
 
-def move_contents(src, dst):
-    for item in os.listdir(src):
-        if item == '.git':
-            continue
-        s = os.path.join(src, item)
-        d = os.path.join(dst, item)
-        if os.path.exists(d):
-            if os.path.isdir(d):
-                shutil.rmtree(d)
-            else:
-                os.remove(d)
-        shutil.move(s, d)
+        # Create a temporary file for the ZIP
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as temp_zip:
+            temp_zip.write(response.content)
+            temp_zip_path = temp_zip.name
 
-def is_update_available(repo_path: str) -> bool:
-    try:
-        print(f"Checking for updates in: {repo_path}")
-        subprocess.run(['git', '-C', repo_path, 'fetch'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        remote_commit = subprocess.check_output(
-            ['git', '-C', repo_path, 'rev-parse', 'origin/main']
-        ).strip().decode('utf-8')
-        local_commit = subprocess.check_output(
-            ['git', '-C', repo_path, 'rev-parse', 'HEAD']
-        ).strip().decode('utf-8')
-        print(f"Remote commit: {remote_commit}, Local commit: {local_commit}")
-        return remote_commit != local_commit
-    except FileNotFoundError as e:
-        print(f"Git command not found: {e}")
-        return False
-    except subprocess.CalledProcessError as e:
-        print(f"An error occurred while checking for updates: {e}")
-        return False
+        # Extract the ZIP file
+        with tempfile.TemporaryDirectory() as temp_extract_dir:
+            print(f"Extracting {temp_zip_path} to {temp_extract_dir}...")
+            with zipfile.ZipFile(temp_zip_path, 'r') as zip_ref:
+                zip_ref.extractall(temp_extract_dir)
 
-def update_directory_with_github_clone(target_dir, github_url):
-    if not os.path.exists(target_dir):
-        raise ValueError(f"The target directory {target_dir} does not exist.")
+            # Move the contents of the extracted folder to the target directory
+            extracted_dir = os.path.join(temp_extract_dir, os.listdir(temp_extract_dir)[0])
+            print(f"Moving contents from {extracted_dir} to {target_dir}...")
+            for item in os.listdir(extracted_dir):
+                s = os.path.join(extracted_dir, item)
+                d = os.path.join(target_dir, item)
+                if os.path.exists(d):
+                    if os.path.isdir(d):
+                        shutil.rmtree(d)
+                    else:
+                        os.remove(d)
+                shutil.move(s, d)
 
-    with tempfile.TemporaryDirectory() as temp_parent_dir:
-        try:
-            repo_name = os.path.splitext(os.path.basename(github_url))[0]
-            clone_dir = os.path.join(temp_parent_dir, repo_name)
-            
-            print("Cloning GitHub directory")
-            subprocess.run(["git", "clone", github_url, clone_dir], check=True)
-
-            print("Moving contents to main directory")
-            move_contents(clone_dir, target_dir)
-
-            print(f"Successfully updated {target_dir} with the contents of the cloned repository.")
-        except FileNotFoundError as e:
-            print(f"Git command not found: {e}")
-        except subprocess.CalledProcessError as e:
-            print(f"Error cloning repository: {e}")
-        except Exception as e:
-            print(f"An error occurred: {e}")
+        # Clean up the temporary ZIP file
+        os.remove(temp_zip_path)
+        print("Update completed successfully.")
+    except Exception as e:
+        print(f"An error occurred while downloading or extracting the repository: {e}")
 
 def DMX_Thread():
     try:
@@ -90,6 +58,7 @@ if __name__ == "__main__":
     is_exe = False
     cur_dir = os.getcwd()
 
+    # Determine if running from an EXE
     for item in os.listdir(cur_dir):
         if item.endswith('.exe'):
             target_dir = os.path.dirname(cur_dir)
@@ -99,20 +68,15 @@ if __name__ == "__main__":
     else:
         target_dir = cur_dir
 
-    print(f'Current directory: {cur_dir}')
+    print(f"Current directory: {cur_dir}")
 
     try:
         if not is_exe:
             raise ValueError("Not an exe. Won't update.")
 
-        if check_internet():
-            if is_update_available(target_dir):
-                print("Update is available. Updating...")
-                update_directory_with_github_clone(target_dir, "https://github.com/TheIronCollector/DMX-Controller.git")
-            else:
-                print("No updates available.")
-        else:
-            print("Skipping update check due to no internet connection.")
+        print("Checking for updates...")
+        download_github_repo_as_zip("https://github.com/TheIronCollector/DMX-Controller", target_dir)
+
     except Exception as e:
         print(f"Error during update process: {e}")
 
@@ -123,12 +87,9 @@ if __name__ == "__main__":
     try:
         print("Running program")
         Program.run()
-    except FileNotFoundError as e:
-        print(f"Program module not found: {e}")
     except Exception as e:
         print(f"An error occurred in the main program: {e}")
     finally:
         print("Waiting for DMX thread to finish...")
         thread.join()
         print("Exiting the program.")
-        sys.exit()
