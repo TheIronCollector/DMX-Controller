@@ -1,9 +1,11 @@
 import os
 import sys
+import time
 import subprocess
 import threading
 import toDMX
 import Program
+import update_script  # Import the update script
 
 def DMX_Thread():
     try:

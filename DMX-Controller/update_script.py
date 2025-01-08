@@ -45,9 +45,13 @@ def download_github_repo_as_zip(github_url, target_dir):
                 shutil.move(updated_exe_path, os.path.join(dist_folder, updated_exe_name))
                 print(f"Updated executable moved to: {os.path.join(dist_folder, updated_exe_name)}")
 
-            # Move the rest of the contents (non-exe files) to the target directory
+            # Move the rest of the contents (non-exe files) to the target directory, excluding the update files
             print(f"Moving other files to {target_dir}...")
             for item in os.listdir(extracted_dir):
+                # Skip the update script and flag file
+                if item in ["update_script.py", "update_flag.txt"]:
+                    continue
+
                 s = os.path.join(extracted_dir, item)
                 d = os.path.join(target_dir, item)
                 if os.path.exists(d):
