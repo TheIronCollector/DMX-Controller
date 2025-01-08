@@ -8,6 +8,7 @@ import zipfile
 import threading
 import toDMX
 import Program
+import subprocess
 
 def download_github_repo_as_zip(github_url, target_dir):
     try:
@@ -18,7 +19,7 @@ def download_github_repo_as_zip(github_url, target_dir):
         # Download the ZIP file
         print(f"Downloading repository from {zip_url}...")
         response = requests.get(zip_url, stream=True)
-        response.raise_for_status()  # Raise an error for bad HTTP responses
+        response.raise_for_status()
 
         # Create a temporary file for the ZIP
         with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as temp_zip:
@@ -53,19 +54,11 @@ def download_github_repo_as_zip(github_url, target_dir):
         return False
 
 def restart_with_update(exe_path, updated_exe_path):
-    """Rename the updated executable and restart the program."""
+    """Queue the program for restarting after replacement."""
     try:
-        # Remove the original executable
-        print(f"Removing original executable: {exe_path}")
-        os.remove(exe_path)
-        
-        # Rename the updated executable to the original name
-        print(f"Renaming updated executable: {updated_exe_path} -> {exe_path}")
-        os.rename(updated_exe_path, exe_path)
-
-        # Restart the program
-        print(f"Restarting program: {exe_path}")
-        os.startfile(exe_path)
+        # Signal the program to exit and then replace it
+        print(f"Program is marked for update. It will restart once it exits.")
+        subprocess.Popen([updated_exe_path])
         sys.exit()
     except Exception as e:
         print(f"Failed to restart with update: {e}")
