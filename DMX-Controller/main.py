@@ -54,11 +54,26 @@ def download_github_repo_as_zip(github_url, target_dir):
         return False
 
 def restart_with_update(exe_path, updated_exe_path):
-    """Queue the program for restarting after replacement."""
+    """Handle renaming and restarting the program after update."""
     try:
-        # Signal the program to exit and then replace it
-        print(f"Program is marked for update. It will restart once it exits.")
-        subprocess.Popen([updated_exe_path])
+        # Create a temporary name for the updated executable
+        temp_exe_path = exe_path + ".tmp"
+
+        # Rename the updated executable to the temporary name
+        print(f"Renaming updated executable: {updated_exe_path} -> {temp_exe_path}")
+        os.rename(updated_exe_path, temp_exe_path)
+
+        # Remove the original executable
+        print(f"Removing original executable: {exe_path}")
+        os.remove(exe_path)
+
+        # Rename the temporary executable to the original executable name
+        print(f"Renaming temporary executable: {temp_exe_path} -> {exe_path}")
+        os.rename(temp_exe_path, exe_path)
+
+        # Restart the program with the updated executable
+        print(f"Restarting program: {exe_path}")
+        subprocess.Popen([exe_path])
         sys.exit()
     except Exception as e:
         print(f"Failed to restart with update: {e}")
