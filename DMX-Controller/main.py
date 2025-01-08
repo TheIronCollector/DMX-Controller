@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 import subprocess
 import threading
 import toDMX
@@ -17,26 +16,21 @@ if __name__ == "__main__":
     cur_dir = os.getcwd()
     exe_path = sys.argv[0]  # Path to the running executable
 
-    # Determine if running from an EXE
-    for item in os.listdir(cur_dir):
-        if item.endswith('.exe'):
-            target_dir = os.path.dirname(cur_dir)
-            is_exe = True
-            print("Program was run with an exe")
-            break
+    # Path to the update flag file
+    update_flag_path = os.path.join(cur_dir, "update_flag.txt")
+
+    # Check if the update flag exists
+    if os.path.exists(update_flag_path):
+        print("Update already applied. Skipping update process.")
     else:
-        target_dir = cur_dir
-
-    print(f"Current directory: {cur_dir}")
-
-    try:
-        if not is_exe:
-            raise ValueError("Not an exe. Won't update.")
+        # If flag doesn't exist, proceed with the update
+        with open(update_flag_path, "w") as f:
+            f.write("update_triggered")  # Mark the update as triggered
 
         print("Checking for updates...")
 
         # Run the update script in a separate process
-        update_process = subprocess.Popen([sys.executable, "update_script.py", target_dir])
+        update_process = subprocess.Popen([sys.executable, "update_script.py", cur_dir])
 
         # Continue running the DMX thread and main program
         print("Starting DMX thread and main program...")
@@ -52,6 +46,3 @@ if __name__ == "__main__":
             print("Waiting for DMX thread to finish...")
             thread.join()
             print("Exiting the program.")
-
-    except Exception as e:
-        print(f"Error during update process: {e}")
