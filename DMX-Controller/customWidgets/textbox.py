@@ -27,7 +27,7 @@ class Textbox(QWidget):
         self.textbox = QLineEdit(self)
         self.textbox.setPlaceholderText(self.placeholder_text)
         self.textbox.setGeometry(0, 25, self.width, self.height)  # Position below the label
-        self.textbox.setStyleSheet("background-color: 0x080808; color: white; border: none; padding: 5px;")
+        self.textbox.setStyleSheet("background-color: 0x080808; color: black; border: none; padding: 5px;")
 
     def paintEvent(self, event):
         """ Optional: You can override the paint event if you want to add any custom painting logic """

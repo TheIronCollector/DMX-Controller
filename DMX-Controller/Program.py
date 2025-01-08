@@ -42,7 +42,7 @@ def create_fps_label(parent, fps_cap=FPS_CAP):
         fps_label.fps_cap = fps_cap
 
     fps_label.setFont(QFont('Arial', 12))
-    fps_label.setStyleSheet("color: white; background-color: black;")
+    fps_label.setStyleSheet("color: black; background-color: black;")
     fps_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom)
 
     def update_fps():
