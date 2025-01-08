@@ -34,74 +34,42 @@ def download_github_repo_as_zip(github_url, target_dir):
             # Move the contents of the extracted folder to the target directory
             extracted_dir = os.path.join(temp_extract_dir, os.listdir(temp_extract_dir)[0])
             print(f"Moving contents from {extracted_dir} to {target_dir}...")
-            updated = False
             for item in os.listdir(extracted_dir):
                 s = os.path.join(extracted_dir, item)
                 d = os.path.join(target_dir, item)
-
-                # Replace only if there is a difference
                 if os.path.exists(d):
                     if os.path.isdir(d):
-                        if not are_directories_identical(s, d):
-                            shutil.rmtree(d)
-                            shutil.move(s, d)
-                            updated = True
+                        shutil.rmtree(d)
                     else:
-                        if not file_is_identical(s, d):
-                            os.remove(d)
-                            shutil.move(s, d)
-                            updated = True
-                else:
-                    shutil.move(s, d)
-                    updated = True
+                        os.remove(d)
+                shutil.move(s, d)
 
         # Clean up the temporary ZIP file
         os.remove(temp_zip_path)
         print("Update completed successfully.")
-        return updated
+        return True
     except Exception as e:
         print(f"An error occurred while downloading or extracting the repository: {e}")
         return False
 
-def file_is_identical(file1, file2):
-    """Check if two files are identical."""
-    return os.path.exists(file2) and os.path.getsize(file1) == os.path.getsize(file2)
+def restart_with_update(exe_path, updated_exe_path):
+    """Rename the updated executable and restart the program."""
+    try:
+        # Remove the original executable
+        print(f"Removing original executable: {exe_path}")
+        os.remove(exe_path)
+        
+        # Rename the updated executable to the original name
+        print(f"Renaming updated executable: {updated_exe_path} -> {exe_path}")
+        os.rename(updated_exe_path, exe_path)
 
-def are_directories_identical(dir1, dir2):
-    """Check if two directories are identical."""
-    if not os.path.exists(dir2):
-        return False
-    for root, dirs, files in os.walk(dir1):
-        for name in files:
-            file1 = os.path.join(root, name)
-            file2 = os.path.join(dir2, os.path.relpath(file1, dir1))
-            if not file_is_identical(file1, file2):
-                return False
-    return True
-
-def create_updater_script(exe_path, temp_dir):
-    updater_script = os.path.join(temp_dir, "updater.bat")
-    with open(updater_script, "w") as script:
-        script.write(f"""@echo off
-timeout /t 2 > nul
-move /y "{exe_path}.new" "{exe_path}" > nul
-start "" "{exe_path}"
-del "%~f0" > nul
-""")
-    return updater_script
-
-def restart_with_update(exe_path):
-    # Rename the current executable to allow replacement
-    new_exe_path = f"{exe_path}.new"
-    os.rename(exe_path, new_exe_path)
-
-    # Create an updater script
-    temp_dir = tempfile.gettempdir()
-    updater_script = create_updater_script(exe_path, temp_dir)
-
-    # Start the updater script and exit the current program
-    os.system(f'start /b cmd /c "{updater_script}"')
-    sys.exit()
+        # Restart the program
+        print(f"Restarting program: {exe_path}")
+        os.startfile(exe_path)
+        sys.exit()
+    except Exception as e:
+        print(f"Failed to restart with update: {e}")
+        sys.exit(1)
 
 def DMX_Thread():
     try:
@@ -133,10 +101,16 @@ if __name__ == "__main__":
         print("Checking for updates...")
         update_applied = download_github_repo_as_zip("https://github.com/TheIronCollector/DMX-Controller", target_dir)
 
-        # Restart only if the update was applied
+        # If the update was applied, handle the executable replacement
         if update_applied:
-            print("Update applied. Restarting the program...")
-            restart_with_update(exe_path)
+            print("Update applied. Preparing to restart with the updated executable...")
+            updated_exe_path = exe_path.replace(".exe", " Updated.exe")
+
+            # Check for the updated executable
+            if os.path.exists(updated_exe_path):
+                restart_with_update(exe_path, updated_exe_path)
+            else:
+                print(f"Updated executable not found: {updated_exe_path}")
         else:
             print("No update was needed.")
 
