@@ -54,7 +54,7 @@ def download_github_repo_as_zip(github_url, target_dir):
         return False
 
 def restart_with_update(exe_path, updated_exe_path):
-    """Handle renaming and restarting the program after update."""
+    """Handle renaming and restarting the program after the update."""
     try:
         # Create a temporary name for the updated executable
         temp_exe_path = exe_path + ".tmp"
@@ -63,7 +63,14 @@ def restart_with_update(exe_path, updated_exe_path):
         print(f"Renaming updated executable: {updated_exe_path} -> {temp_exe_path}")
         os.rename(updated_exe_path, temp_exe_path)
 
-        # Remove the original executable
+        # Restart the program with the new executable
+        print(f"Restarting program with the updated executable: {temp_exe_path}")
+        subprocess.Popen([temp_exe_path])
+
+        # Wait a bit to ensure the original program exits
+        time.sleep(2)
+
+        # Now that the original program has closed, delete the original executable
         print(f"Removing original executable: {exe_path}")
         os.remove(exe_path)
 
@@ -71,9 +78,7 @@ def restart_with_update(exe_path, updated_exe_path):
         print(f"Renaming temporary executable: {temp_exe_path} -> {exe_path}")
         os.rename(temp_exe_path, exe_path)
 
-        # Restart the program with the updated executable
-        print(f"Restarting program: {exe_path}")
-        subprocess.Popen([exe_path])
+        # Exit the current process to complete the update
         sys.exit()
     except Exception as e:
         print(f"Failed to restart with update: {e}")
