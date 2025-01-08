@@ -54,7 +54,7 @@ def download_github_repo_as_zip(github_url, target_dir):
         return False
 
 def restart_with_update(exe_path, updated_exe_path):
-    """Handle renaming and restarting the program after the update."""
+    """Handle renaming and restarting the program after update."""
     try:
         # Create a temporary name for the updated executable
         temp_exe_path = exe_path + ".tmp"
@@ -63,16 +63,21 @@ def restart_with_update(exe_path, updated_exe_path):
         print(f"Renaming updated executable: {updated_exe_path} -> {temp_exe_path}")
         os.rename(updated_exe_path, temp_exe_path)
 
-        # Restart the program with the new executable
+        # Restart the program with the updated executable
         print(f"Restarting program with the updated executable: {temp_exe_path}")
         subprocess.Popen([temp_exe_path])
 
         # Wait a bit to ensure the original program exits
-        time.sleep(2)
+        print("Waiting for the original program to close...")
+        time.sleep(3)  # Adjust sleep time if needed
 
         # Now that the original program has closed, delete the original executable
         print(f"Removing original executable: {exe_path}")
-        os.remove(exe_path)
+        try:
+            os.remove(exe_path)
+        except PermissionError:
+            print(f"PermissionError: Could not remove {exe_path}. Trying to remove it later.")
+            # You could schedule the deletion with a separate process if needed
 
         # Rename the temporary executable to the original executable name
         print(f"Renaming temporary executable: {temp_exe_path} -> {exe_path}")

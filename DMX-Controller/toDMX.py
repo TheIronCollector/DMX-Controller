@@ -10,10 +10,6 @@ running: bool = True
 # DMX data
 dmx_data = array.array('B', [0] * 512)
 
-# Vendor and Product ID's used to identity DMX interfaces
-DSD_TECH_VID = 1027
-DSD_TECH_PID = 24577
-
 # Timing constants
 FRAME_TIME = 1 / 120  # Approx. 8.3 ms between frames (120 Hz)
 BREAK_TIME = 0.005    # 5 ms break time
@@ -22,10 +18,34 @@ MAB_TIME = 0.000012   # 12 microseconds for Mark After Break
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def find_dmx_interface() -> str | None:
-    for port in serial.tools.list_ports.comports():
-        if port.vid == DSD_TECH_VID and port.pid == DSD_TECH_PID:
+def find_dmx_dongle():
+    """
+    Finds a USB to DMX dongle by checking VID/PID or description.
+
+    Returns:
+        str: The COM port of the DMX dongle, or None if not found.
+    """
+    # Known VID/PID for USB to DMX devices (add more as needed)
+    known_dongles = [
+        (0x0403, 0x6001),  # Example: FTDI-based devices (like Enttec Open DMX)
+        (0x1A86, 0x7523),  # Example: CH340-based devices
+        (0x067B, 0x2303),  # Example: PL2303-based devices
+    ]
+
+    ports = serial.tools.list_ports.comports()
+    for port in ports:
+        # Check for VID/PID match
+        if port.vid and port.pid:
+            for vid, pid in known_dongles:
+                if port.vid == vid and port.pid == pid:
+                    print(f"Found DMX dongle on {port.device} (VID: {vid}, PID: {pid})")
+                    return port.device
+
+        # Optionally, check for description if VID/PID is unavailable
+        if "DMX" in (port.description or "").upper() or "DMX" in (port.manufacturer or "").upper():
+            print(f"Found DMX dongle on {port.device} (Description: {port.description})")
             return port.device
+
     return None
 
 def send_dmx_signal(ser: serial.Serial, dmx_data: array.array) -> None:
@@ -47,7 +67,7 @@ def run() -> None:
     looking = False
 
     while running:
-        dmx_interface_port = find_dmx_interface()
+        dmx_interface_port = find_dmx_dongle()
         
         if not dmx_interface_port:
             if not looking: logging.info("DMX Interface not found. Waiting for connection...")
