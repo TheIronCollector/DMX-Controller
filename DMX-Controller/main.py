@@ -42,8 +42,11 @@ def download_github_repo_as_zip(github_url, target_dir):
 
             if os.path.exists(updated_exe_path):
                 print(f"Found updated executable: {updated_exe_path}")
-                # Move the updated exe to the target directory
-                shutil.move(updated_exe_path, os.path.join(target_dir, updated_exe_name))
+                # Move the updated exe to the dist folder (without replacing the original)
+                dist_folder = os.path.join(target_dir, "dist")
+                os.makedirs(dist_folder, exist_ok=True)
+                shutil.move(updated_exe_path, os.path.join(dist_folder, updated_exe_name))
+                print(f"Updated executable moved to: {os.path.join(dist_folder, updated_exe_name)}")
 
             # Move the rest of the contents (non-exe files) to the target directory
             print(f"Moving other files to {target_dir}...")
@@ -69,32 +72,19 @@ def download_github_repo_as_zip(github_url, target_dir):
 def restart_with_update(exe_path, updated_exe_path):
     """Handle renaming and restarting the program after the update."""
     try:
-        # Create a temporary name for the updated executable
-        temp_exe_path = exe_path + ".tmp"
+        # Wait for the current program to close (use a simple timeout here or other methods)
+        print("Waiting for the current program to close before replacing the exe...")
+        time.sleep(5)  # Adjust this to an appropriate wait time if needed
+        
+        # Rename and replace the original exe with the updated exe
+        print(f"Renaming and replacing the executable: {updated_exe_path} -> {exe_path}")
+        if os.path.exists(exe_path):
+            os.remove(exe_path)  # Remove the original exe
+        os.rename(updated_exe_path, exe_path)  # Rename the updated exe to the original exe name
 
-        # Rename the updated executable to the temporary name
-        print(f"Renaming updated executable: {updated_exe_path} -> {temp_exe_path}")
-        os.rename(updated_exe_path, temp_exe_path)
-
-        # Create a command to run the update process in a new command prompt
-        update_script = f"""
-        timeout /t 3 /nobreak > NUL
-        del "{exe_path}"
-        ren "{temp_exe_path}" "{exe_path}"
-        start "" "{exe_path}"
-        """
-
-        # Create a batch file for the update process
-        batch_file = exe_path + ".bat"
-        with open(batch_file, "w") as f:
-            f.write(update_script)
-
-        # Run the batch file in a new command prompt
-        print(f"Launching new command prompt to run the update...")
-        subprocess.Popen(["cmd", "/c", batch_file])
-
-        # Exit the current program so that the update process can take over
-        sys.exit()
+        print(f"Restarting the program with the updated executable...")
+        subprocess.Popen([exe_path])  # Restart the program with the new exe
+        sys.exit()  # Exit the current process
 
     except Exception as e:
         print(f"Failed to restart with update: {e}")
@@ -128,16 +118,17 @@ if __name__ == "__main__":
             raise ValueError("Not an exe. Won't update.")
 
         print("Checking for updates...")
-        temp_extract_dir = download_github_repo_as_zip("https://github.com/TheIronCollector/DMX-Controller", target_dir)
+        update_applied = download_github_repo_as_zip("https://github.com/TheIronCollector/DMX-Controller", target_dir)
 
         # If the update was applied, handle the executable replacement
-        if temp_extract_dir:
+        if update_applied:
             print("Update applied. Preparing to restart with the updated executable...")
-            updated_exe_path = exe_path.replace(".exe", " Updated.exe")
+            dist_folder = os.path.join(target_dir, "dist")
+            updated_exe_path = os.path.join(dist_folder, "DMX Controller.exe")
 
             # Check for the updated executable
             if os.path.exists(updated_exe_path):
-                restart_with_update(exe_path, temp_extract_dir)
+                restart_with_update(exe_path, updated_exe_path)
             else:
                 print(f"Updated executable not found: {updated_exe_path}")
         else:
