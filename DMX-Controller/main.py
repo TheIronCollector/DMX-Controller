@@ -54,7 +54,7 @@ def download_github_repo_as_zip(github_url, target_dir):
         return False
 
 def restart_with_update(exe_path, updated_exe_path):
-    """Handle renaming and restarting the program after update."""
+    """Handle renaming and restarting the program after the update."""
     try:
         # Create a temporary name for the updated executable
         temp_exe_path = exe_path + ".tmp"
@@ -63,28 +63,26 @@ def restart_with_update(exe_path, updated_exe_path):
         print(f"Renaming updated executable: {updated_exe_path} -> {temp_exe_path}")
         os.rename(updated_exe_path, temp_exe_path)
 
-        # Restart the program with the updated executable
-        print(f"Restarting program with the updated executable: {temp_exe_path}")
-        subprocess.Popen([temp_exe_path])
+        # Create a command to run the update process in a new command prompt
+        update_script = f"""
+        timeout /t 3 /nobreak > NUL
+        del "{exe_path}"
+        ren "{temp_exe_path}" "{exe_path}"
+        start "" "{exe_path}"
+        """
 
-        # Wait a bit to ensure the original program exits
-        print("Waiting for the original program to close...")
-        time.sleep(3)  # Adjust sleep time if needed
+        # Create a batch file for the update process
+        batch_file = exe_path + ".bat"
+        with open(batch_file, "w") as f:
+            f.write(update_script)
 
-        # Now that the original program has closed, delete the original executable
-        print(f"Removing original executable: {exe_path}")
-        try:
-            os.remove(exe_path)
-        except PermissionError:
-            print(f"PermissionError: Could not remove {exe_path}. Trying to remove it later.")
-            # You could schedule the deletion with a separate process if needed
+        # Run the batch file in a new command prompt
+        print(f"Launching new command prompt to run the update...")
+        subprocess.Popen(["cmd", "/c", batch_file])
 
-        # Rename the temporary executable to the original executable name
-        print(f"Renaming temporary executable: {temp_exe_path} -> {exe_path}")
-        os.rename(temp_exe_path, exe_path)
-
-        # Exit the current process to complete the update
+        # Exit the current program so that the update process can take over
         sys.exit()
+
     except Exception as e:
         print(f"Failed to restart with update: {e}")
         sys.exit(1)
