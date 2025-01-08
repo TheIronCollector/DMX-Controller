@@ -1,4 +1,5 @@
 import os
+import sys
 import requests
 import shutil
 import tempfile
@@ -35,16 +36,26 @@ def download_github_repo_as_zip(github_url, target_dir):
             for item in os.listdir(extracted_dir):
                 s = os.path.join(extracted_dir, item)
                 d = os.path.join(target_dir, item)
+
+                # Skip the running executable file
+                if os.path.basename(d) == os.path.basename(sys.argv[0]):
+                    print(f"Skipping running file: {d}")
+                    continue
+
                 if os.path.exists(d):
-                    if os.path.isdir(d):
-                        shutil.rmtree(d)
-                    else:
-                        os.remove(d)
+                    try:
+                        if os.path.isdir(d):
+                            shutil.rmtree(d)
+                        else:
+                            os.remove(d)
+                    except PermissionError as e:
+                        print(f"Could not replace {d}: {e}")
+                        continue
                 shutil.move(s, d)
 
         # Clean up the temporary ZIP file
         os.remove(temp_zip_path)
-        print("Update completed successfully.")
+        print("Update completed successfully. Please restart the program if necessary.")
     except Exception as e:
         print(f"An error occurred while downloading or extracting the repository: {e}")
 
