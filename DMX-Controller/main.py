@@ -1,10 +1,11 @@
 import os
 import sys
+import time
 import requests
 import shutil
 import tempfile
-import threading
 import zipfile
+import threading
 import toDMX
 import Program
 
@@ -37,27 +38,43 @@ def download_github_repo_as_zip(github_url, target_dir):
                 s = os.path.join(extracted_dir, item)
                 d = os.path.join(target_dir, item)
 
-                # Skip the running executable file
-                if os.path.basename(d) == os.path.basename(sys.argv[0]):
-                    print(f"Skipping running file: {d}")
-                    continue
-
+                # Always replace files, including the running executable
                 if os.path.exists(d):
-                    try:
-                        if os.path.isdir(d):
-                            shutil.rmtree(d)
-                        else:
-                            os.remove(d)
-                    except PermissionError as e:
-                        print(f"Could not replace {d}: {e}")
-                        continue
+                    if os.path.isdir(d):
+                        shutil.rmtree(d)
+                    else:
+                        os.remove(d)
                 shutil.move(s, d)
 
         # Clean up the temporary ZIP file
         os.remove(temp_zip_path)
-        print("Update completed successfully. Please restart the program if necessary.")
+        print("Update completed successfully.")
     except Exception as e:
         print(f"An error occurred while downloading or extracting the repository: {e}")
+
+def create_updater_script(exe_path, temp_dir):
+    updater_script = os.path.join(temp_dir, "updater.bat")
+    with open(updater_script, "w") as script:
+        script.write(f"""@echo off
+timeout /t 2 > nul
+move /y "{exe_path}.new" "{exe_path}" > nul
+start "" "{exe_path}"
+del "%~f0" > nul
+""")
+    return updater_script
+
+def restart_with_update(exe_path):
+    # Rename the current executable to allow replacement
+    new_exe_path = f"{exe_path}.new"
+    os.rename(exe_path, new_exe_path)
+
+    # Create an updater script
+    temp_dir = tempfile.gettempdir()
+    updater_script = create_updater_script(exe_path, temp_dir)
+
+    # Start the updater script and exit the current program
+    os.system(f'start /b cmd /c "{updater_script}"')
+    sys.exit()
 
 def DMX_Thread():
     try:
@@ -68,6 +85,7 @@ def DMX_Thread():
 if __name__ == "__main__":
     is_exe = False
     cur_dir = os.getcwd()
+    exe_path = sys.argv[0]  # Path to the running executable
 
     # Determine if running from an EXE
     for item in os.listdir(cur_dir):
@@ -87,6 +105,9 @@ if __name__ == "__main__":
 
         print("Checking for updates...")
         download_github_repo_as_zip("https://github.com/TheIronCollector/DMX-Controller", target_dir)
+
+        # Restart if the executable was updated
+        restart_with_update(exe_path)
 
     except Exception as e:
         print(f"Error during update process: {e}")
